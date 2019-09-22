@@ -98,6 +98,10 @@ module.exports = function()
 
     this.broadcastRoom = function(packetData)
     {
+        //Update user on server
+        client.user.pos_x = packetData.Pos_x
+        client.user.pos_y = packetData.Pos_y
+
         islands[client.user.current_island].clients.forEach(function(otherClient)
         {
             if(otherClient.user.username != client.user.username)
@@ -126,9 +130,16 @@ module.exports = function()
     {
         client.user.save(function(err)
         {
-            console.log(client.user.username + " failed to save");
+            if(err)
+            {
+                console.log('Client "' + client.user.username + '" failed to save: ' + err.toString());
+            }
+            else
+            {
+                console.log('Client "' + client.user.username + '" saved');
+            }
         });
         //islands[client.current_island].clients.erase(client)
-        console.log(client.user.username + " disconnected");
+        console.log('Client "' + client.user.username + '" disconnected');
     };
 };
