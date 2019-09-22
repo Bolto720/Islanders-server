@@ -32,14 +32,14 @@ module.exports = function()
                         packetToSend.putVar({Player: decoded.Player, Command: decoded.Command, Result: true, 
                             Island: client.user.current_island, Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
                         let toSend = addLengthFront(packetToSend.getBuffer())
-                        console.log('send:', toSend)
+                        console.log('Client: ' + decoded.Player + ' logged in')
                         client.socket.write(toSend)
                     }
                     else
                     {
                         packetToSend.putVar({Player: decoded.Player, Command: decoded.Command, Result: false})
                         let toSend = addLengthFront(packetToSend.getBuffer())
-                        console.log('send:', toSend)
+                        console.log('Client: ' + decoded.Player + ' failed to log in')
                         client.socket.write(toSend)
                     }
                 });
@@ -52,14 +52,14 @@ module.exports = function()
                     {
                         packetToSend.putVar({Player: decoded.Player, Command: decoded.Command, Result: true})
                         let toSend = addLengthFront(packetToSend.getBuffer())
-                        console.log('send:', toSend)
+                        console.log('Client: ' + decoded.Player + ' registered')
                         client.socket.write(toSend)
                     }
                     else
                     {
                         packetToSend.putVar({Player: decoded.Player, Command: decoded.Command, Result: false})
                         let toSend = addLengthFront(packetToSend.getBuffer())
-                        console.log('send:', toSend)
+                        console.log('Client: ' + decoded.Player + ' failed to register')
                         client.socket.write(toSend)
                     }
                 });
@@ -68,7 +68,7 @@ module.exports = function()
             {
                 packetToSend.putVar(decoded)
                 let toSend = addLengthFront(packetToSend.getBuffer())
-                console.log('send:', toSend)
+                console.log(decoded.Player + ' moved to x:' + decoded.Pos_x + ', y:' + decoded.Pos_y )
                 client.socket.write(toSend)
 
                 client.broadcastRoom(decoded);
@@ -90,7 +90,7 @@ module.exports = function()
 
             packetToSend.putVar({Player: client.Player, Command: "enter", Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
             let toSend = addLengthFront(packetToSend.getBuffer())
-            console.log('enter island:', toSend)
+            //console.log('enter island:', toSend)
         });
 
         islands[selected_island].clients.push(client);        
@@ -105,7 +105,7 @@ module.exports = function()
                 var packetToSend = new GdBuffer()
                 packetToSend.putVar({Player: packetData.Player, Command: "broadcast", Pos_x: packetData.Pos_x, Pos_y: packetData.Pos_y})
                 let toSend = addLengthFront(packetToSend.getBuffer())
-                console.log('broadcast:', toSend)
+                //console.log('broadcast:', toSend)
                 otherClient.socket.write(toSend)
             }
         });
@@ -114,7 +114,7 @@ module.exports = function()
     //Socket events
     this.data = function(data)
     {
-        console.log("Client data " + data.toString());
+        //console.log("Client data " + data.toString());
     };
 
     this.error = function(err)
@@ -126,9 +126,9 @@ module.exports = function()
     {
         client.user.save(function(err)
         {
-            console.log("Save error");
+            console.log(client.user.username + " failed to save");
         });
         //islands[client.current_island].clients.erase(client)
-        console.log("Client closed");
+        console.log(client.user.username + " disconnected");
     };
 };
