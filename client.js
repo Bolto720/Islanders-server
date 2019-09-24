@@ -27,13 +27,14 @@ module.exports = function()
                 {
                     if(result)
                     {
-                        client.user = user;
-                        client.enterIsland(client.user.current_island);
+                        client.user = user;                        
                         packetToSend.putVar({Player: decoded.Player, Command: decoded.Command, Result: true, 
                             Island: client.user.current_island, Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
                         let toSend = addLengthFront(packetToSend.getBuffer())
                         console.log('Client "' + decoded.Player + '" logged in')
                         client.socket.write(toSend)
+
+                        client.enterIsland(client.user.current_island);
                     }
                     else
                     {
@@ -71,7 +72,7 @@ module.exports = function()
                 console.log('Client "' + decoded.Player + '" moved to x:' + decoded.Pos_x + ', y:' + decoded.Pos_y )
                 client.socket.write(toSend)
 
-                client.broadcastRoom(decoded);
+                client.broadcastIsland(decoded);
             }
             else
             {           
@@ -86,17 +87,20 @@ module.exports = function()
     {
         islands[selected_island].clients.forEach(function(otherClient)
         {
-            var packetToSend = new GdBuffer()
-
-            packetToSend.putVar({Player: client.Player, Command: "enter", Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
-            let toSend = addLengthFront(packetToSend.getBuffer())
-            //console.log('enter island:', toSend)
+            if(otherClient.user.username != client.user.username)
+            {
+                var packetToSend = new GdBuffer()
+                packetToSend.putVar({Player: client.user.username, Command: "enter", Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
+                let toSend = addLengthFront(packetToSend.getBuffer())
+                //console.log('enter island:', toSend)
+                otherClient.socket.write(toSend)
+            }
         });
 
         islands[selected_island].clients.push(client);        
     };
 
-    this.broadcastRoom = function(packetData)
+    this.broadcastIsland = function(packetData)
     {
         //Update user on server
         client.user.pos_x = packetData.Pos_x
@@ -113,6 +117,22 @@ module.exports = function()
                 otherClient.socket.write(toSend)
             }
         });
+    };
+
+    //Client methods
+    this.quitIsland = function(selected_island)
+    {
+        islands[selected_island].clients.forEach(function(otherClient)
+        {
+            if(otherClient.user.username != client.user.username)
+            {
+                var packetToSend = new GdBuffer()
+                packetToSend.putVar({Player: client.user.username, Command: "quit", Pos_x: client.user.pos_x, Pos_y: client.user.pos_y})
+                let toSend = addLengthFront(packetToSend.getBuffer())
+                //console.log('enter island:', toSend)
+                otherClient.socket.write(toSend)
+            }
+        });      
     };
 
     //Socket events
@@ -139,7 +159,20 @@ module.exports = function()
                 console.log('Client "' + client.user.username + '" saved');
             }
         });
-        //islands[client.current_island].clients.erase(client)
+
+        client.RemoveClient(client);
+
         console.log('Client "' + client.user.username + '" disconnected');
     };
+
+    this.RemoveClient = function(client)
+    {
+        //islands[client.current_island].RemoveClient(client);
+
+        var index = islands[client.user.current_island].clients.indexOf(client);
+
+        islands[client.user.current_island].clients.splice(index, 1);
+
+        client.quitIsland(client.user.current_island)
+    }
 };

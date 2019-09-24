@@ -43,6 +43,16 @@ userSchema.statics.login = function(username, password, cb)
         {
             if(user.password == password)
             {
+                if(user.pos_x == null)
+                {
+                    user.pos_x = islands[config.starting_zone].start_x;
+                }
+
+                if(user.pos_y == null)
+                {
+                    user.pos_y = islands[config.starting_zone].start_y;
+                }
+
                 cb(true, user);
             }
             else
