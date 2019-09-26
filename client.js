@@ -102,6 +102,31 @@ module.exports = function()
 
     this.broadcastIsland = function(packetData)
     {
+        if(packetData.Command == "log")
+        {
+            islands[client.user.current_island].clients.forEach(function(c)
+            {
+                var packetToSend = new GdBuffer()
+                packetToSend.putVar({Player: packetData.Player, Command: "log", Message: packetData.Message})
+                let toSend = addLengthFront(packetToSend.getBuffer())
+                //console.log('broadcast:', toSend)
+                c.socket.write(toSend)
+                return;
+            });
+        }
+        else if(packetData.Command == "creature")
+        {
+            islands[client.user.current_island].clients.forEach(function(c)
+            {
+                var packetToSend = new GdBuffer()
+                packetToSend.putVar({Creature: packetData.Creature, Command: "creature", Pos_x: packetData.Pos_x, Pos_y: packetData.Pos_y})
+                let toSend = addLengthFront(packetToSend.getBuffer())
+                //console.log('broadcast:', toSend)
+                c.socket.write(toSend)
+                return;
+            });
+        }
+
         //Update user on server
         client.user.pos_x = packetData.Pos_x
         client.user.pos_y = packetData.Pos_y

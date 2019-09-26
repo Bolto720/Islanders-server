@@ -9,6 +9,7 @@
 		"performance-now": "*",
 		"mongoose": "*",
 		"underscore": "*",
-		"@gd-com/utils": "^4.0.1"
+		"@gd-com/utils": "^4.0.1",
+		"nanotimer": "*"
 	}
 }

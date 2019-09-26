@@ -1,6 +1,7 @@
 require(__dirname + '/Resources/config.js');
 var fs = require('fs');
 var net = require('net');
+var nano_timer = require('nanotimer');
 require("./packet.js");
 
 //Load initializers
@@ -44,6 +45,15 @@ net.createServer(function(socket)
     socket.on("end", thisClient.end);
     socket.on("data", thisClient.data);
 }).listen(config.port);
+
+//Start game loop
+var game_loop = new require("./game_loop.js");
+
+var loop = new nano_timer();
+loop.setInterval(() =>
+{
+    game_loop.run();
+}, '', '1s');
 
 console.log("Initialize completed, server running on port " + config.port 
     + " for environment " + config.environment);
