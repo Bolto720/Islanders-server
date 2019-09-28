@@ -180,21 +180,24 @@ module.exports = function()
 
     this.end = function()
     {
-        client.user.save(function(err)
+        if(client.user != null)
         {
-            if(err)
+            client.user.save(function(err)
             {
-                console.log('Client "' + client.user.username + '" failed to save: ' + err.toString());
-            }
-            else
-            {
-                console.log('Client "' + client.user.username + '" saved');
-            }
-        });
+                if(err)
+                {
+                    console.log('Client "' + client.user.username + '" failed to save: ' + err.toString());
+                }
+                else
+                {
+                    console.log('Client "' + client.user.username + '" saved');
+                }
+            });
+
+            console.log('Client "' + client.user.username + '" disconnected');
+        }
 
         client.RemoveClient(client);
-
-        console.log('Client "' + client.user.username + '" disconnected');
     };
 
     this.RemoveClient = function(client)
@@ -207,4 +210,18 @@ module.exports = function()
 
         client.quitIsland(client.user.current_island)
     }
+
+    this.isInVisibleArea = function(x, y)
+    {
+        if(x < client.user.pos_x - (5 * 24))
+            return false;
+        else if(x > client.user.pos_x + (5 * 24))
+            return false;
+        else if(y < client.user.pos_y - (5 * 24))
+            return false;
+        else if(y > client.user.pos_y + (5 * 24))
+            return false;
+
+        return true;
+    };
 };

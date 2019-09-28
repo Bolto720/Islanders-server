@@ -1,5 +1,5 @@
-var { StreamTcp, GdBuffer, addLengthFront } = require('@gd-com/utils')
-var Creature = new require("./Models/creature.js");
+var { GdBuffer, addLengthFront } = require('@gd-com/utils')
+var Creature = require("./Models/creature.js");
 
 exports.run = function()
 {
@@ -8,12 +8,7 @@ exports.run = function()
         return;
     }
 
-    islands[config.starting_zone].clients.forEach(function(client)
-    {        
-        //var message = {"Player": client.user.username, "Command": "log", "Message": "loop"};
-        //client.broadcastIsland(message);
-    });
-
+    
     if(islands[config.starting_zone].creatures.length < 50)
     {
         let c = new Creature("creature" + islands[config.starting_zone].creatures.length,
@@ -24,16 +19,30 @@ exports.run = function()
     var messages = []
 
     islands[config.starting_zone].creatures.forEach(function(creature)
-    {        
+    {       
         messages.push(creature.move())
     });
 
-    var packetToSend = new GdBuffer()
-    packetToSend.putVar(messages)
-    var toSend = addLengthFront(packetToSend.getBuffer())
-
     islands[config.starting_zone].clients.forEach(function(client)
-    {
+    {        
+        var packetToSend = new GdBuffer()
+        var clientMessages = []
+
+        messages.forEach(function(message)
+        {
+            if(client.isInVisibleArea(message.Pos_x, message.Pos_y))
+            {                
+                clientMessages.push(message)
+            }
+        });
+        
+        packetToSend.putVar(clientMessages)
+        var toSend = addLengthFront(packetToSend.getBuffer())
         client.socket.write(toSend);
     });
+
+    // islands[config.starting_zone].clients.forEach(function(client)
+    // {
+    //     client.socket.write(toSend);
+    // });
 };
