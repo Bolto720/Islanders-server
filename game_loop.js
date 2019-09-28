@@ -1,12 +1,5 @@
-//var creature = new require("./creature.js");
-
-function creature(name, current_island, pos_x, pos_y) 
-{
-    this.name = name;
-    this.current_island = current_island;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
-}
+var { StreamTcp, GdBuffer, addLengthFront } = require('@gd-com/utils')
+var Creature = new require("./Models/creature.js");
 
 exports.run = function()
 {
@@ -21,42 +14,26 @@ exports.run = function()
         //client.broadcastIsland(message);
     });
 
-    var c;
-
-    if(islands[config.starting_zone].creatures.length < 5)
+    if(islands[config.starting_zone].creatures.length < 50)
     {
-        c = new creature("creature" + islands[config.starting_zone].creatures.length,
+        let c = new Creature("creature" + islands[config.starting_zone].creatures.length,
         config.starting_zone, islands[config.starting_zone].start_x, islands[config.starting_zone].start_y);
         islands[config.starting_zone].creatures.push(c);
     }
 
+    var messages = []
+
     islands[config.starting_zone].creatures.forEach(function(creature)
     {        
-        if(Math.random() > 0.4)
-        {
-            creature.pos_x += 24;
-        }
-        else
-        {
-            creature.pos_x -= 24;
-        }
+        messages.push(creature.move())
+    });
 
-        if(Math.random() > 0.4)
-        {
-            creature.pos_y += 24;
-        }
-        else
-        {
-            creature.pos_y -= 24;
-        }
+    var packetToSend = new GdBuffer()
+    packetToSend.putVar(messages)
+    var toSend = addLengthFront(packetToSend.getBuffer())
 
-        var message = {"Creature": creature.name, "Command": "creature", "Pos_x": creature.pos_x, "Pos_y": creature.pos_y};
-        
-        islands[config.starting_zone].clients.forEach(function(client)
-        {        
-            //var message = {"Player": client.user.username, "Command": "log", "Message": "loop"};
-            client.broadcastIsland(message);
-        });
-        
+    islands[config.starting_zone].clients.forEach(function(client)
+    {
+        client.socket.write(toSend);
     });
 };

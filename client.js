@@ -1,4 +1,4 @@
-var now = require("performance-now");
+//var now = require("performance-now");
 var _ = require("underscore");
 var { StreamTcp, GdBuffer, addLengthFront } = require('@gd-com/utils')
 
@@ -102,6 +102,13 @@ module.exports = function()
 
     this.broadcastIsland = function(packetData)
     {
+        // islands[client.user.current_island].clients.forEach(function(c)
+        // {
+        //     c.socket.write(packetData)
+        // });
+
+        // return;
+
         if(packetData.Command == "log")
         {
             islands[client.user.current_island].clients.forEach(function(c)
