@@ -8,7 +8,7 @@ exports.run = function()
         return;
     }
     
-    if(islands[config.starting_zone].creatures.length < 500)
+    if(islands[config.starting_zone].creatures.length < 50)
     {
         let c = new Creature("creature" + islands[config.starting_zone].creatures.length,
         config.starting_zone, islands[config.starting_zone].start_x, islands[config.starting_zone].start_y);

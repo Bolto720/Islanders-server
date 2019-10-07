@@ -1,6 +1,7 @@
 //var now = require("performance-now");
 var _ = require("underscore");
 var { StreamTcp, GdBuffer, addLengthFront } = require('@gd-com/utils')
+var visibleArea = 10
 
 module.exports = function()
 {
@@ -213,13 +214,13 @@ module.exports = function()
 
     this.isInVisibleArea = function(x, y)
     {
-        if(x < client.user.pos_x - (5 * 24))
+        if(x < client.user.pos_x - (visibleArea * 24))
             return false;
-        else if(x > client.user.pos_x + (5 * 24))
+        else if(x > client.user.pos_x + (visibleArea * 24))
             return false;
-        else if(y < client.user.pos_y - (5 * 24))
+        else if(y < client.user.pos_y - (visibleArea * 24))
             return false;
-        else if(y > client.user.pos_y + (5 * 24))
+        else if(y > client.user.pos_y + (visibleArea * 24))
             return false;
 
         return true;
